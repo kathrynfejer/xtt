@@ -26,7 +26,7 @@
 
 
 struct network_helper{
-	unsigned char array[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
+    unsigned char array[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
   unsigned char* head;
   size_t filled;
 };
@@ -39,43 +39,43 @@ struct network_helper{
 // void delete_bytes(struct network_helper* network, int numbytes);
 
 void setupNetwork(struct network_helper* network){
-  network->head= network->array;
-	network->filled= 0;
+    network->head= network->array;
+    network->filled= 0;
 }
 
-void read_bytes(struct network_helper* network, size_t numbytes, unsigned char* io_ptr){
-	if(network->filled<numbytes){
-		printf("the number of filled is less than the numbytes we want to read");
-		exit(1);
-	}
-	memcpy(io_ptr, network->head, numbytes);
-	network->head+=numbytes;//&network->array[network->filled+numbytes-1];
-	network->filled-=numbytes;
-	//network->remainingempty-=network->remainingempty;
+void read_bytes(struct network_helper* network, size_t numbytes, unsigned char* io_ptr) {
+    if (network->filled < numbytes) {
+        printf("the number of filled is less than the numbytes we want to read");
+        exit(1);
+    }
+    memcpy(io_ptr, network->head, numbytes);
+    network->head+=numbytes;//&network->array[network->filled+numbytes-1];
+    network->filled-=numbytes;
+    //network->remainingempty-=network->remainingempty;
 }
 
-void write_bytes(struct network_helper* network, size_t numbytes, unsigned char* io_ptr){
-	if(network->filled+numbytes> MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH){
-		printf("writes over the edge");
-		exit(1);
-	}
+void write_bytes(struct network_helper* network, size_t numbytes, unsigned char* io_ptr) {
+    if (network->filled+numbytes> MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH){
+        printf("writes over the edge");
+        exit(1);
+    }
 
-	memcpy(network->head, io_ptr, numbytes);
-	//printf("zero: %c\n", network->array[0]);
-	network->filled+= numbytes;
-	//network->remainingempty-=numbytes;
+    memcpy(network->head, io_ptr, numbytes);
+    //printf("zero: %c\n", network->array[0]);
+    network->filled += numbytes;
+    //network->remainingempty-=numbytes;
 }
 
 void clear_bytes(struct network_helper* network){
-	if(network->filled!=0){
-		printf("head and filled do not match up--cannot clear");
-	}
-	network->head = network->array;
-	network->filled=0;
+    if(network->filled!=0){
+        printf("head and filled do not match up--cannot clear");
+    }
+    network->head = network->array;
+    network->filled=0;
 }
 
-void printArray(unsigned char* arr, unsigned int length){
-  printf("here is the array: ");
+void printArray (unsigned char* arr, unsigned int length) {
+    printf("here is the array: ");
   for(unsigned int i = 0; i<length; i++){
     printf("%x", arr[i]);
   }
