@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "networkArray.h"
+#include "server_setup.h"
 
 #include <xtt/context.h>
 #include <xtt/crypto_types.h>
@@ -31,15 +32,7 @@ struct xtt_client_ctxhelper{
   xtt_return_code_type rc;
 };
 
-struct xtt_server_ctxhelper{
-  unsigned char in[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
-  unsigned char out[MAX_HANDSHAKE_SERVER_MESSAGE_LENGTH];
-  struct xtt_server_handshake_context ctx;
-  unsigned char *io_ptr;
-  uint16_t bytes_requested;
-  xtt_return_code_type rc;
-  struct xtt_server_cookie_context cookie_ctx;
-};
+
 
 
 void client_write_to_network(struct xtt_client_ctxhelper* client, struct network_helper* network);
@@ -58,8 +51,6 @@ int main()
 
   //setup and assign network HERE
     struct network_helper network;
-    unsigned char netarr[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
-    network.arrptr= netarr;
     setupNetwork(&network);
 
   client.bytes_requested=0;
@@ -68,19 +59,14 @@ int main()
 
   xtt_certificate_root_id claimed_root_out;
   const struct xtt_server_root_certificate_context root_server_cert;
-  const xtt_identity_type requested_client_id;
   const xtt_identity_type client_id;
   const xtt_identity_type intended_server_id;
-  struct xtt_client_group_context group_ctx;
-  struct xtt_server_certificate_context cert_ctx_s;
-  const unsigned char serialized_certificate;
-  const xtt_ed25519_priv_key private_key_s;
   xtt_identity_type requested_client_id_out;
   xtt_group_id claimed_group_id_out;
-  struct xtt_group_public_key_context group_pub_key_ctx;
   const struct xtt_server_certificate_context certificate_ctx;
-
-
+  struct xtt_server_certificate_context cert_ctx_s;
+  struct xtt_group_public_key_context group_pub_key_ctx;
+  struct xtt_client_group_context group_ctx;
 
   xtt_version version = XTT_VERSION_ONE;
   // xtt_suite_spec suite_spec = XTT_X25519_LRSW_ED25519_CHACHA20POLY1305_SHA512;
@@ -89,74 +75,7 @@ int main()
   // xtt_suite_spec suite_spec = XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B;
 
 
-    //SERVER and ROOT stuff
-    //*************************************************************************
-    server.rc = xtt_initialize_server_certificate_context_ed25519(&cert_ctx_s, &serialized_certificate, &private_key_s);
-    printf("init server cert ctx: %s\n", xtt_strerror(server.rc));
-    assert(server.rc==XTT_RETURN_SUCCESS);
-    server.rc= xtt_initialize_server_cookie_context(&server.cookie_ctx);
-    printf("init server cookie ctx: %s\n", xtt_strerror(server.rc));
-    assert(server.rc==XTT_RETURN_SUCCESS);
-
-    unsigned char cert_out_char;
-    xtt_identity_type server_id= {.data={0x31, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x31}};
-
-    xtt_ed25519_pub_key servers_pub_key;
-    xtt_certificate_expiry expiry;
-    xtt_certificate_root_id roots_id;
-    xtt_ed25519_priv_key roots_priv_key;
-    server.rc=xtt_generate_server_certificate_ed25519(&cert_out_char, &server_id, &servers_pub_key, &expiry, &roots_id, &roots_priv_key);
-    printf("generate server cert: %s\n", xtt_strerror(server.rc));
-    assert(server.rc==XTT_RETURN_SUCCESS);
-
-    struct xtt_server_root_certificate_context server_root_cert;
-    server.rc=xtt_initialize_server_root_certificate_context_ed25519(&server_root_cert, &roots_id, &servers_pub_key);
-    printf("initialize server root cert: %s\n", xtt_strerror(server.rc));
-    assert(server.rc==XTT_RETURN_SUCCESS);
-
-    const unsigned char basename[]={0x42, 0x41, 0x53, 0x45, 0x4e, 0x41, 0x4d, 0x45};
-    uint16_t basename_length = sizeof(basename);
-    const xtt_daa_group_pub_key_lrsw gpk={.data={
-    0x04, 0x73, 0x64, 0xff, 0x42, 0xe1, 0x07, 0x6a, 0xa2, 0x92, 0xe9, 0x56,
-    0x1f, 0xe9, 0x6e, 0x08, 0xca, 0x0f, 0x52, 0x56, 0xa7, 0xf6, 0x14, 0xbc,
-    0xed, 0x24, 0x6e, 0x1b, 0x5f, 0x02, 0xcc, 0x29, 0x32, 0x4c, 0x54, 0x63,
-    0xaf, 0x7d, 0xda, 0xd9, 0x50, 0xf9, 0x73, 0xe5, 0x25, 0x0a, 0x04, 0x1d,
-    0x2a, 0x2f, 0xdc, 0x5f, 0xcb, 0x46, 0x69, 0x6a, 0xe8, 0x90, 0x76, 0x74,
-    0xdd, 0xd2, 0x76, 0xf0, 0xa6, 0xef, 0xab, 0x22, 0x2b, 0x6a, 0x34, 0x37,
-    0x3b, 0xf6, 0x22, 0xf0, 0x87, 0xf2, 0x9b, 0x6f, 0x2e, 0xa7, 0x57, 0x65,
-    0x7b, 0xd6, 0xc9, 0x04, 0x9a, 0x15, 0xff, 0x50, 0x5a, 0x61, 0xa3, 0x97,
-    0xe0, 0x43, 0x1b, 0x15, 0xb6, 0xf0, 0x5e, 0xba, 0x4a, 0xf2, 0x9b, 0xca,
-    0xd7, 0xd9, 0x6c, 0xbd, 0x15, 0x90, 0x79, 0x25, 0x3b, 0x44, 0x4e, 0xe8,
-    0xd4, 0xff, 0x57, 0x52, 0x93, 0xe3, 0xe4, 0x84, 0x04, 0x04, 0x70, 0xe2,
-    0x7d, 0x8a, 0x09, 0x34, 0x24, 0x58, 0x3c, 0xaa, 0x6a, 0xb8, 0x64, 0x57,
-    0xce, 0x7d, 0x54, 0xd1, 0x4f, 0x04, 0xba, 0xd0, 0xf6, 0x17, 0xd5, 0xe9,
-    0xce, 0x45, 0x30, 0xdf, 0xae, 0x81, 0xd2, 0xf4, 0x8f, 0x32, 0xa9, 0xbe,
-    0xd3, 0x52, 0x31, 0x49, 0x04, 0x5a, 0x36, 0x33, 0x1d, 0xf5, 0xed, 0xe6,
-    0x00, 0xe8, 0x60, 0x16, 0xba, 0x48, 0x29, 0x61, 0x52, 0x97, 0x94, 0xf3,
-    0x7f, 0x5e, 0x60, 0x20, 0x0f, 0x9c, 0x77, 0x65, 0xc1, 0x31, 0xdb, 0x74,
-    0xdc, 0xa0, 0xf1, 0xd0, 0xe2, 0x04, 0x2b, 0x76, 0xba, 0xaa, 0x88, 0x06,
-    0x1c, 0xc1, 0x3a, 0xd3, 0x29, 0x5d, 0xa2, 0xcc, 0xbd, 0xd3, 0x8d, 0xab,
-    0x99, 0xd2, 0x8f, 0x29, 0x0e, 0xd5, 0x16, 0x4b, 0x4b, 0x22, 0x39, 0x43,
-    0xc1, 0x38, 0x6e, 0x5a, 0x40, 0xa1, 0x37, 0xd3, 0xf7, 0xb4, 0x4a, 0xe7,
-    0xb1, 0x48, 0x77, 0xba, 0x97, 0x65}};
-    server.rc=xtt_initialize_group_public_key_context_lrsw(&group_pub_key_ctx, basename, basename_length, &gpk);
-    printf("initialize group public key ctx: %s\n", xtt_strerror(server.rc));
-    assert(server.rc==XTT_RETURN_SUCCESS);
-
-    xtt_group_id gid;
-    xtt_daa_priv_key_lrsw daa_priv_key;
-    xtt_daa_credential_lrsw daa_cred;
-    xtt_initialize_client_group_context_lrsw(&group_ctx, &gid, &daa_priv_key, &daa_cred, basename, basename_length);
-    printf("initialize client group context: %s\n", xtt_strerror(server.rc));
-    assert(server.rc==XTT_RETURN_SUCCESS);
-
-//code between this and the comment above causes failure
-
-
-  server.rc = xtt_initialize_server_certificate_context_ed25519(&cert_ctx_s, &serialized_certificate, &private_key_s);
-  assert(server.rc==XTT_RETURN_SUCCESS);
-  server.rc= xtt_initialize_server_cookie_context(&server.cookie_ctx);
-  assert(server.rc==XTT_RETURN_SUCCESS);
+  setup_server_stuff(&server, &cert_ctx_s, &group_pub_key_ctx, &group_ctx);
 
   uint16_t client_init_send_length = xtt_get_message_length(client.out);
   msglen =xtt_get_message_length(client.out);
@@ -216,11 +135,11 @@ int main()
   printf("client read from network read I/O: %s\n", xtt_strerror(client.rc));
   client_read_from_network(&client, &network);
   printf("client read from network read I/O: %s\n", xtt_strerror(client.rc));
-  assert(client.rc==XTT_CLIENT_HANDSHAKE_STATE_PREPARSING_SERVERATTEST);
+  assert(client.rc==XTT_RETURN_WANT_PREPARSESERVERATTEST);
   client.rc=xtt_handshake_client_preparse_serverattest(&claimed_root_out, &client.bytes_requested, &client.io_ptr, &client.ctx);
   printf("client preparse server attest: %s\n", xtt_strerror(client.rc));
-  assert(client.rc==XTT_CLIENT_HANDSHAKE_STATE_BUILDING_IDCLIENTATTEST);
-  client.rc=xtt_handshake_client_build_idclientattest(&client.bytes_requested, &client.io_ptr, &root_server_cert, &requested_client_id, &intended_server_id, &group_ctx, &client.ctx);
+  assert(client.rc==XTT_RETURN_WANT_BUILDIDCLIENTATTEST);
+  client.rc=xtt_handshake_client_build_idclientattest(&client.bytes_requested, &client.io_ptr, &root_server_cert, &xtt_null_identity, &intended_server_id, &group_ctx, &client.ctx);
   printf("client build idclientattest: %s\n", xtt_strerror(client.rc));
   assert(client.rc==XTT_RETURN_WANT_WRITE);
   client_write_to_network(&client, &network);
