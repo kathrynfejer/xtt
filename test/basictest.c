@@ -149,6 +149,8 @@ int main()
   printf("initialize client group context: %s\n", xtt_strerror(server.rc));
   assert(server.rc==XTT_RETURN_SUCCESS);
 
+
+
   uint16_t client_init_send_length = xtt_get_message_length(client.out);
   msglen =xtt_get_message_length(client.out);
   printf("%hu\n", msglen);
@@ -176,7 +178,7 @@ int main()
   printf("bytes requested client: %hu\n", client.bytes_requested);
   client_write_to_network(&client, &network);
   printf("handshake client handle I/O: %s\n", xtt_strerror(client.rc));
-  printArray(network.arrptr);
+  //printArray(network.arrptr, client.bytes_requested);
   assert(network.arrptr==network.head);
   assert(client.rc==XTT_RETURN_WANT_READ);
 
@@ -187,16 +189,15 @@ int main()
   printf("handshake server handle connect: %s\n", xtt_strerror(server.rc));
   printf("bytes req after handle connect:%hu \n", server.bytes_requested);
   assert(server.rc==XTT_RETURN_WANT_READ);
-  //printArray(network.head);
   printf("bytes req'd: %hu net filled: %zu\n", server.bytes_requested, network.filled);
   server_read_from_network(&server, &network);
   printf("1 handshake server after read from network: %s\n", xtt_strerror(server.rc));
   printf("1 bytes req'd: %hu net filled: %zu\n", server.bytes_requested, network.filled);
-  printArray(network.head);
+
   server_read_from_network(&server, &network);
   printf("2 handshake server after read from network: %s\n", xtt_strerror(server.rc));
   printf("2 bytes req'd: %hu net filled: %zu\n", server.bytes_requested, network.filled);
-  printArray(network.head);
+  printf("segfault in assert");
   assert(server.rc==XTT_RETURN_WANT_BUILDSERVERATTEST);
   server.rc= xtt_handshake_server_build_serverattest(&server.bytes_requested, &server.io_ptr, &server.ctx, &cert_ctx_s, &server.cookie_ctx);
   printf("handshake server build server attest: %s\n", xtt_strerror(server.rc));
@@ -204,7 +205,7 @@ int main()
   printf("bytes req'd: %hu net filled: %zu\n", server.bytes_requested, network.filled);
   server_write_to_network(&server, &network);
   printf("after write to network's I/0: %s\n", xtt_strerror(server.rc));
-  printArray(network.head);
+  //printArray(network.head, server.bytes_requested);
   printf("bytes req'd: %hu net filled: %zu\n", server.bytes_requested, network.filled);
   assert(server.rc==XTT_RETURN_WANT_READ);
 

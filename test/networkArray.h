@@ -28,7 +28,7 @@ struct network_helper{
 };
 
 // bool isFull(struct network_helper* network);
- void printArray(unsigned char* arr);
+ void printArray(unsigned char* arr, unsigned int length);
 // void printArrayc(const char* arr);
 // void add_bytes(struct network_helper* network, int numbytes, unsigned char* io_ptr);
 // void setLength(struct network_helper* network, uint16_t s);
@@ -70,9 +70,9 @@ void clear_bytes(struct network_helper* network){
 	network->filled=0;
 }
 
-void printArray(unsigned char* arr){
-  printf("here is the array:");
-  for(unsigned int i = 0; i<=10; i++){
+void printArray(unsigned char* arr, unsigned int length){
+  printf("here is the array: ");
+  for(unsigned int i = 0; i<length; i++){
     printf("%x", arr[i]);
   }
 
