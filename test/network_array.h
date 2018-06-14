@@ -30,8 +30,8 @@ extern "C" {
 
 struct network_helper{
     unsigned char array[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
-  unsigned char* head;
-  size_t filled;
+    unsigned char* head;
+    size_t filled;
 };
 
 // bool isFull(struct network_helper* network);
@@ -74,11 +74,11 @@ void clear_bytes(struct network_helper* network){
 
 void printArray (unsigned char* arr, unsigned int length) {
     printf("here is the array: ");
-  for(unsigned int i = 0; i<length; i++){
-    printf("%x", arr[i]);
-  }
+    for(unsigned int i = 0; i<length; i++){
+        printf("%x", arr[i]);
+    }
 
-  printf("\n");
+    printf("\n");
 }
 
 #ifdef __cplusplus
