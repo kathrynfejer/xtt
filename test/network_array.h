@@ -2,6 +2,10 @@
 #define NETWORKARRAY_H
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xtt.h>
 #include <sodium.h>
 
@@ -24,7 +28,6 @@
 #include <xtt/return_codes.h>
 
 
-
 struct network_helper{
     unsigned char array[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
   unsigned char* head;
@@ -33,10 +36,7 @@ struct network_helper{
 
 // bool isFull(struct network_helper* network);
  void printArray(unsigned char* arr, unsigned int length);
-// void printArrayc(const char* arr);
-// void add_bytes(struct network_helper* network, int numbytes, unsigned char* io_ptr);
-// void setLength(struct network_helper* network, uint16_t s);
-// void delete_bytes(struct network_helper* network, int numbytes);
+
 
 void setupNetwork(struct network_helper* network){
     network->head= network->array;
@@ -45,7 +45,6 @@ void setupNetwork(struct network_helper* network){
 
 void read_bytes(struct network_helper* network, size_t numbytes, unsigned char* io_ptr) {
     if (network->filled < numbytes) {
-        printf("the number of filled is less than the numbytes we want to read");
         exit(1);
     }
     memcpy(io_ptr, network->head, numbytes);
@@ -56,7 +55,6 @@ void read_bytes(struct network_helper* network, size_t numbytes, unsigned char* 
 
 void write_bytes(struct network_helper* network, size_t numbytes, unsigned char* io_ptr) {
     if (network->filled+numbytes> MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH){
-        printf("writes over the edge");
         exit(1);
     }
 
@@ -68,10 +66,10 @@ void write_bytes(struct network_helper* network, size_t numbytes, unsigned char*
 
 void clear_bytes(struct network_helper* network){
     if(network->filled!=0){
-        printf("head and filled do not match up--cannot clear");
+        exit(1);
     }
     network->head = network->array;
-    network->filled=0;
+    network->filled = 0;
 }
 
 void printArray (unsigned char* arr, unsigned int length) {
@@ -82,5 +80,9 @@ void printArray (unsigned char* arr, unsigned int length) {
 
   printf("\n");
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

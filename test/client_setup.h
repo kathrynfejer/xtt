@@ -1,3 +1,11 @@
+#ifndef XTT_CLIENT_SETUP_H
+#define XTT_CLIENT_SETUP_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <xtt.h>
 #include <sodium.h>
 
@@ -18,7 +26,7 @@
 #include <xtt/crypto_types.h>
 #include <xtt/return_codes.h>
 
-struct xtt_client_ctxhelper{
+struct xtt_client_ctxhelper {
   unsigned char in[MAX_HANDSHAKE_SERVER_MESSAGE_LENGTH];
   unsigned char out[MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH];
   struct xtt_client_handshake_context ctx;
@@ -27,9 +35,11 @@ struct xtt_client_ctxhelper{
   xtt_return_code_type rc;
 };
 
-void setup_client_input(struct xtt_client_ctxhelper* client, struct xtt_client_group_context* group_ctx, const xtt_daa_group_pub_key_lrsw* gpk){
+void setup_client_input(struct xtt_server_root_certificate_context* server_root_cert,
+                        struct xtt_client_ctxhelper* client,
+                        struct xtt_client_group_context* group_ctx){
   xtt_group_id gid;
-  xtt_daa_priv_key_lrsw daa_priv_key = { .data = {0xca, 0x6b, 0x40, 0x60, 0x76, 0xde, 0x8e, 0xba, 0x4b, 0x16, 0xb8, 0x8b,
+  xtt_daa_priv_key_lrsw daa_priv_key = {.data = {0xca, 0x6b, 0x40, 0x60, 0x76, 0xde, 0x8e, 0xba, 0x4b, 0x16, 0xb8, 0x8b,
   0xb8, 0xef, 0xf4, 0xa6, 0xd7, 0xac, 0x8d, 0x70, 0x2e, 0x4a, 0x64, 0xf4,
   0x55, 0xd5, 0x1a, 0xe8, 0xf0, 0xd1, 0x33, 0xdb}};
   xtt_daa_credential_lrsw daa_cred = { .data = {0x04, 0x78, 0x40, 0x9d, 0x96, 0x00, 0x00, 0x23, 0xcd, 0xb2, 0x5f, 0x6c,
@@ -55,16 +65,27 @@ void setup_client_input(struct xtt_client_ctxhelper* client, struct xtt_client_g
   0x50, 0x7a, 0xa9, 0xb7, 0x98, 0xce, 0x11, 0x15, 0x35, 0x64, 0xbc, 0x8d,
   0xae, 0xb7, 0x82, 0x5c, 0xdc, 0x62, 0xc7, 0x70}};
 
-  const unsigned char basename[]={0x42, 0x41, 0x53, 0x45, 0x4e, 0x41, 0x4d, 0x45};
+  const unsigned char basename[] = {0x42, 0x41, 0x53, 0x45, 0x4e, 0x41, 0x4d, 0x45};
   uint16_t basename_length = 8;
 
+  xtt_certificate_root_id roots_id = {.data = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+  0x30, 0x30, 0x30, 0x31}};
 
+  xtt_ed25519_pub_key root_pub_key = {.data = {0xa1, 0xce, 0xaf, 0xed, 0x2f, 0x4e, 0x17, 0x0f, 0x9a, 0x17, 0x6b, 0x17,
+  0xb5, 0x3c, 0x54, 0x95, 0xef, 0xe5, 0xa5, 0x41, 0xde, 0x3d, 0x79, 0xf2,
+  0x30, 0x08, 0x5d, 0xc1, 0xb2, 0xed, 0xe0, 0x18}};
 
-  int hash_ret = crypto_hash_sha256(gid.data, gpk->data, sizeof(gpk));
-  assert(0 == hash_ret);
-
+  memset(gid.data, 0, sizeof(xtt_group_id));
 
   client->rc = xtt_initialize_client_group_context_lrsw(group_ctx, &gid, &daa_priv_key, &daa_cred, basename, basename_length);
-  printf("initialize client group context: %s\n", xtt_strerror(client->rc));
   assert(client->rc==XTT_RETURN_SUCCESS);
+
+  client->rc = xtt_initialize_server_root_certificate_context_ed25519(server_root_cert, &roots_id, &root_pub_key);
+  assert(client->rc == XTT_RETURN_SUCCESS);
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
