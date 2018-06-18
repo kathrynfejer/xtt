@@ -1,13 +1,13 @@
 /******************************************************************************
  *
  * Copyright 2018 Xaptum, Inc.
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -127,6 +127,13 @@ int xtt_crypto_aead_aes256_decrypt(unsigned char* decrypted,
                                    uint16_t addl_len,
                                    const xtt_aes256_nonce* nonce,
                                    const xtt_aes256_key* key);
+
+
+//new functions for ecdsa
+
+int xtt_crypto_create_ecdsap256(csprng *rng, octet* priv_key, octet* pub_key);//ECP_NIST256_KEY_PAIR_GENERATE
+int xtt_crypto_sign_ecdsap256(int hashtype, csprng *rng, octet *ephem_key, octet *priv_sign_key_in, octet *msg_in, octet *c_comp, octet *d_comp); //wraps ECP_NIST256_SP_DSA
+int xtt_crypto_verify_ecdsap256(int hashtype, octet *pub_key_in, octet *msg_in, octet *c_comp, octet *d_comp); //wraps ECP_NIST256_VP_DS and call ECP_NIST256_PUBLIC_KEY_VALIDATE first
 
 #ifdef __cplusplus
 }
