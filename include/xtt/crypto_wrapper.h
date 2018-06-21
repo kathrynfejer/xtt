@@ -20,7 +20,7 @@
 #define XTT_CRYPTO_WRAPPER_H
 #pragma once
 
-#include "../../../amcl/include/ecdh_NIST256.h"
+#include <amcl/ecdh_NIST256.h>
 #include <xtt/crypto_types.h>
 
 #ifdef __cplusplus
@@ -133,13 +133,13 @@ int xtt_crypto_aead_aes256_decrypt(unsigned char* decrypted,
 //new functions for ecdsa
 
 
-int xtt_crypto_create_ecdsap256(xtt_x25519_pub_key *pub_key, xtt_x25519_priv_key *priv_key);//ECP_NIST256_KEY_PAIR_GENERATE
+int xtt_crypto_create_ecdsap256(xtt_ed25519_pub_key *pub_key, xtt_ed25519_priv_key *priv_key);
 int xtt_crypto_sign_ecdsap256(unsigned char* signature_out, const unsigned char* msg,
-                            uint16_t msg_len, const xtt_ed25519_priv_key* priv_key); //wraps ECP_NIST256_SP_DSA
+                            uint16_t msg_len, const xtt_ed25519_priv_key* priv_key);
 int xtt_crypto_verify_ecdsap256(const unsigned char* signature,
                               const unsigned char* msg,
                               uint16_t msg_len,
-                              const xtt_ed25519_pub_key* pub_key); //wraps ECP_NIST256_VP_DS and call ECP_NIST256_PUBLIC_KEY_VALIDATE first
+                              const xtt_ed25519_pub_key* pub_key);
 
 #ifdef __cplusplus
 }
