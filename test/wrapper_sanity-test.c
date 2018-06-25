@@ -6,13 +6,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
-void reinitialization_is_ok();
-void size_sanity();
-void x25519_keys_independent();
-void dh_gives_same_secret();
-void bad_dh_fails();
-void good_ed25519_sign_succeeds();
-void do_sign();
+void ecdsa_regression_test();
+void ecdsa_hard_code_keypair();
+void ecdsa_hard_code_signature();
+void ecdsa_check_k_vals();
 
 void initialize() {
     int init_ret = xtt_crypto_initialize_crypto();
@@ -22,194 +19,16 @@ void initialize() {
 int main() {
     initialize();
 
-    reinitialization_is_ok();
-    size_sanity();
-    x25519_keys_independent();
-    dh_gives_same_secret();
-    bad_dh_fails();
-    good_ed25519_sign_succeeds();
-    do_sign();
+    ecdsa_regression_test();
+    ecdsa_hard_code_keypair();
+    //ecdsa_hard_code_signature();
+    ecdsa_check_k_vals();
 }
 
-void reinitialization_is_ok()
+
+void ecdsa_regression_test()
 {
-    printf("starting wrapper_sanity-test::reinitialization_is_ok...\n");
-
-    int init_ret = xtt_crypto_initialize_crypto();
-    EXPECT_EQ(init_ret, 0);
-
-    printf("ok\n");
-}
-
-void size_sanity()
-{
-    printf("starting wrapper_sanity-test::size_sanity...\n");
-
-    // TODO
-    EXPECT_EQ(sizeof(xtt_x25519_pub_key), sizeof(xtt_x25519_priv_key));
-
-    printf("ok\n");
-}
-
-void x25519_keys_independent()
-{
-    printf("starting wrapper_sanity-test::x25519_keys_independent...\n");
-
-    xtt_x25519_pub_key pub;
-    xtt_x25519_priv_key priv;
-    xtt_crypto_create_x25519_key_pair(&pub, &priv);
-
-    xtt_x25519_pub_key pub_two;
-    xtt_x25519_priv_key priv_two;
-    xtt_crypto_create_x25519_key_pair(&pub_two, &priv_two);
-
-    // pub_key_length == priv_key_length (cf. earlier test)
-    EXPECT_NE(memcmp(pub.data,
-                     priv.data,
-                     sizeof(xtt_x25519_pub_key)),
-              0);
-
-    EXPECT_NE(memcmp(pub_two.data,
-                     priv_two.data,
-                     sizeof(xtt_x25519_pub_key)),
-              0);
-
-    EXPECT_NE(memcmp(pub.data,
-                     pub_two.data,
-                     sizeof(xtt_x25519_pub_key)),
-              0);
-
-    EXPECT_NE(memcmp(priv.data,
-                     priv_two.data,
-                     sizeof(xtt_x25519_priv_key)),
-              0);
-
-    printf("ok\n");
-}
-
-void dh_gives_same_secret()
-{
-    printf("starting wrapper_sanity-test::dh_gives_same_secret...\n");
-
-    xtt_x25519_pub_key client_pub;
-    xtt_x25519_priv_key client_priv;
-    xtt_crypto_create_x25519_key_pair(&client_pub, &client_priv);
-
-    xtt_x25519_pub_key server_pub;
-    xtt_x25519_priv_key server_priv;
-    xtt_crypto_create_x25519_key_pair(&server_pub, &server_priv);
-
-    xtt_x25519_shared_secret shared_secret_client_copy;
-    EXPECT_EQ(xtt_crypto_do_x25519_diffie_hellman((unsigned char*)&shared_secret_client_copy,
-                                                  &client_priv,
-                                                  &server_pub),
-              0);
-
-    xtt_x25519_shared_secret shared_secret_server_copy;
-    EXPECT_EQ(xtt_crypto_do_x25519_diffie_hellman((unsigned char*)&shared_secret_server_copy,
-                                                  &server_priv,
-                                                  &client_pub),
-              0);
-
-    EXPECT_EQ(memcmp(shared_secret_client_copy.data,
-                     shared_secret_server_copy.data,
-                     sizeof(xtt_x25519_shared_secret)),
-              0);
-
-    printf("ok\n");
-}
-
-void bad_dh_fails()
-{
-    printf("starting wrapper_sanity-test::bad_dh_fails...\n");
-
-    xtt_x25519_pub_key client_pub;
-    xtt_x25519_priv_key client_priv;
-    xtt_crypto_create_x25519_key_pair(&client_pub, &client_priv);
-
-    // Create garbage keys
-    xtt_x25519_pub_key server_pub;
-    xtt_x25519_priv_key server_priv;
-    xtt_crypto_get_random(server_pub.data, sizeof(xtt_x25519_pub_key));
-    xtt_crypto_get_random(server_priv.data, sizeof(xtt_x25519_priv_key));
-
-    xtt_x25519_shared_secret shared_secret_client_copy;
-    EXPECT_EQ(xtt_crypto_do_x25519_diffie_hellman((unsigned char*)&shared_secret_client_copy,
-                                                  &client_priv,
-                                                  &server_pub),
-              0);
-
-    xtt_x25519_shared_secret shared_secret_server_copy;
-    EXPECT_EQ(xtt_crypto_do_x25519_diffie_hellman((unsigned char*)&shared_secret_server_copy,
-                                                  &server_priv,
-                                                  &client_pub),
-              0);
-
-    EXPECT_NE(memcmp(shared_secret_client_copy.data,
-                     shared_secret_server_copy.data,
-                     sizeof(xtt_x25519_shared_secret)),
-              0);
-
-    printf("ok\n");
-}
-
-void good_ed25519_sign_succeeds()
-{
-    printf("starting wrapper_sanity-test::good_ed25519_sign_succeeds...\n");
-
-#if 0
-#define message (unsigned char*)"test"
-#define msg_len 4
-#define addl_data (unsigned char*)"addl"
-#define addl_len 4
-
-    aead_chacha_keys client_handshake_keys;
-    aead_chacha_keys server_handshake_keys;
-    unsigned char ciphertext[msg_len + k_chacha_mac_length];
-    uint32_t ciphertext_len;
-    unsigned char rand_buf[42];
-    unsigned char decrypted[msg_len];
-    uint32_t decrypted_len;
-
-
-    if (create_client_handshake_chacha_aead_keys(&client_handshake_keys, shared_secret_client_copy) != 0) {
-        printf("Suspicious server public key!\n");
-        return;
-    }
-    secure_clear(shared_secret_client_copy, k_x25519_shared_secret_length);
-
-    if (do_x25519_diffie_hellman(shared_secret_server_copy, server_key_pair.priv, client_key_pair.pub) != 0) {
-        printf("Server failed to do DH");
-        return;
-    }
-    if (create_server_handshake_chacha_aead_keys(&server_handshake_keys, shared_secret_server_copy) != 0) {
-        printf("Suspicious client public key!\n");
-        return;
-    }
-    secure_clear(shared_secret_server_copy, k_x25519_shared_secret_length);
-
-    get_random(rand_buf, 42);
-
-    /* TODO: XOR the IV with the seq-num to get the nonce */
-    aead_chacha_encrypt(ciphertext, &ciphertext_len, message, msg_len, addl_data, addl_len, client_handshake_keys.tx_iv, client_handshake_keys.tx);
-
-    EXPECT_EQ(aead_chacha_decrypt(decrypted,
-                                  &decrypted_len,
-                                  ciphertext,
-                                  ciphertext_len,
-                                  addl_data,
-                                  addl_len,
-                                  server_handshake_keys.rx_iv,
-                                  server_handshake_keys.rx),
-             0);
-#endif
-
-    printf("ok\n");
-}
-
-void do_sign()
-{
-    printf("starting wrapper_sanity-test::do_sign...\n");
+    printf("starting wrapper_sanity-test::ecdsa_regression_test...\n");
 
     const unsigned char msg_sign[] = "this is a test msg to be signed";
     size_t msg_sign_len;
@@ -219,19 +38,89 @@ void do_sign()
 
     msg_sign_len = sizeof(msg_sign);
 
-    xtt_crypto_create_ed25519_key_pair(&pub_key, &priv_key);
+    EXPECT_EQ(xtt_crypto_create_ecdsap256(&pub_key, &priv_key), 0);
+    EXPECT_EQ(xtt_crypto_sign_ecdsap256(signature.data, msg_sign, msg_sign_len, &priv_key), 0);
+    EXPECT_EQ(xtt_crypto_verify_ecdsap256(signature.data, msg_sign, msg_sign_len, &pub_key), 0);
+    printf("ecdsa_regression_test passed\n");
+}
 
-    EXPECT_EQ(xtt_crypto_sign_ed25519(signature.data,
+void ecdsa_hard_code_keypair(){
+    //sign and verify
+    printf("starting wrapper_sanity-test::ecdsa_hard_code_keypair...\n");
+
+    const unsigned char msg_sign[] = "this is a test msg to be signed";
+    size_t msg_sign_len = sizeof(msg_sign);
+    xtt_ed25519_signature signature;
+    xtt_ed25519_pub_key pub_key = {.data = {0x04, 0xca, 0x97, 0x84, 0xc6, 0x07, 0xc2, 0x04, 0x98, 0x63, 0xd0, 0xd4, 0x15, 0xdb, 0x63,
+    0x67, 0x90, 0x77, 0x60, 0xc8, 0x95, 0x2b, 0x42, 0x99, 0xd3, 0xed, 0x3e, 0x5f, 0x6f, 0x3e,
+    0x82, 0xd7, 0xaa, 0xf1, 0xde, 0x99, 0xa9, 0x83, 0xfe, 0xbe, 0x4f, 0xfd, 0x56, 0x03, 0x84,
+    0x85, 0x59, 0xf4, 0x99, 0x4d, 0x86, 0xfe, 0xe3, 0x5a, 0xa5, 0x25, 0x1c, 0x59, 0xc5, 0x02,
+    0xa5, 0x49, 0x16, 0xd7, 0xa6}};
+    xtt_ed25519_priv_key priv_key = {.data ={0x5d, 0x74, 0xd1, 0x19, 0x1a, 0x12, 0xdc, 0x6b, 0x58, 0x8e, 0x98, 0xdb, 0xab, 0xac, 0xeb,
+    0xa7, 0x3f, 0xba, 0x9b, 0x39, 0x3a, 0xab, 0x33, 0x1b, 0xc0, 0xbc, 0xf6, 0xd6, 0xcf, 0x26,
+    0x8b, 0x3e}};
+
+    EXPECT_EQ(xtt_crypto_sign_ecdsap256(signature.data, msg_sign, msg_sign_len, &priv_key), 0);
+    EXPECT_EQ(xtt_crypto_verify_ecdsap256(signature.data, msg_sign, msg_sign_len, &pub_key), 0);
+    printf("ecdsa_hard_code_keypair passed\n");
+}
+
+void ecdsa_hard_code_signature(){
+    printf("starting wrapper_sanity-test::ecdsa_hard_code_signature...\n");
+
+    const unsigned char msg_sign[] = "this is a test msg to be signed";
+    size_t msg_sign_len = sizeof(msg_sign);
+    xtt_ed25519_signature signature = {.data = {0x30, 0x45, 0x02, 0x20, 0x43, 0x21, 0x6d, 0x29, 0xb5, 0x8a, 0x59, 0xc8,
+  0xff, 0xff, 0x71, 0x6b, 0x19, 0xcf, 0xc6, 0x07, 0x3b, 0xc4, 0x10, 0x8f,
+  0x56, 0x31, 0xeb, 0x87, 0xbf, 0xb6, 0x0a, 0x48, 0x02, 0x06, 0xc7, 0x60,
+  0x02, 0x21, 0x00, 0xb5, 0x12, 0x38, 0x76, 0x44, 0x92, 0xdc, 0xd5, 0x4c,
+  0xb8, 0x51, 0x89, 0x53, 0x65, 0x1c, 0x09, 0x1f, 0xdd, 0x80, 0xe1, 0xb1,
+  0xb0, 0x2e, 0x3f, 0x02, /*0x7b, 0x55, 0xfd, 0xbe, 0x6a, 0xcb, 0x70*/
+}};
+    xtt_ed25519_pub_key pub_key = {.data = {0x04, 0xca, 0x97, 0x84, 0xc6, 0x07, 0xc2, 0x04, 0x98, 0x63, 0xd0, 0xd4, 0x15, 0xdb, 0x63,
+    0x67, 0x90, 0x77, 0x60, 0xc8, 0x95, 0x2b, 0x42, 0x99, 0xd3, 0xed, 0x3e, 0x5f, 0x6f, 0x3e,
+    0x82, 0xd7, 0xaa, 0xf1, 0xde, 0x99, 0xa9, 0x83, 0xfe, 0xbe, 0x4f, 0xfd, 0x56, 0x03, 0x84,
+    0x85, 0x59, 0xf4, 0x99, 0x4d, 0x86, 0xfe, 0xe3, 0x5a, 0xa5, 0x25, 0x1c, 0x59, 0xc5, 0x02,
+    0xa5, 0x49, 0x16, 0xd7, 0xa6}};
+
+
+    int verifyout = xtt_crypto_verify_ecdsap256(signature.data, msg_sign, sizeof(msg_sign), &pub_key);
+    printf("output of crypto_verify: %d\n", verifyout);
+    EXPECT_EQ(xtt_crypto_verify_ecdsap256(signature.data,
+                                        msg_sign,
+                                        msg_sign_len,
+                                        &pub_key),
+              0);
+    printf("ecdsa_hard_code_signature passed\n");
+}
+
+void ecdsa_check_k_vals(){
+    //sign 2x with same keypair and check that it changes the output signatures
+    printf("starting wrapper_sanity-test::ecdsa_check_k_vals...\n");
+
+    const unsigned char msg_sign[] = "this is a test msg to be signed";
+    size_t msg_sign_len;
+    xtt_ed25519_signature signature1;
+    xtt_ed25519_signature signature2;
+    xtt_ed25519_pub_key pub_key;
+    xtt_ed25519_priv_key priv_key;
+
+    msg_sign_len = sizeof(msg_sign);
+
+    EXPECT_EQ(xtt_crypto_create_ecdsap256(&pub_key, &priv_key), 0);
+
+    EXPECT_EQ(xtt_crypto_sign_ecdsap256(signature1.data,
+                                      msg_sign,
+                                      msg_sign_len,
+                                      &priv_key),
+              0);
+    EXPECT_EQ(xtt_crypto_sign_ecdsap256(signature2.data,
                                       msg_sign,
                                       msg_sign_len,
                                       &priv_key),
               0);
 
-    EXPECT_EQ(xtt_crypto_verify_ed25519(signature.data,
-                                        msg_sign, 
-                                        msg_sign_len,
-                                        &pub_key),
-              0);
+    EXPECT_NE(memcmp(signature1.data, signature2.data, sizeof(xtt_ed25519_signature)), 0);    //memcmp because this is not enough
+    printf("ecdsa_check_k_vals passed\n");
 
-    printf("ok\n");
 }

@@ -130,9 +130,6 @@ int xtt_crypto_aead_aes256_decrypt(unsigned char* decrypted,
                                    const xtt_aes256_key* key);
 
 
-//new functions for ecdsa
-
-
 int xtt_crypto_create_ecdsap256(xtt_ed25519_pub_key *pub_key, xtt_ed25519_priv_key *priv_key);
 int xtt_crypto_sign_ecdsap256(unsigned char* signature_out, const unsigned char* msg,
                             uint16_t msg_len, const xtt_ed25519_priv_key* priv_key);
