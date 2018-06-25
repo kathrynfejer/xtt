@@ -6,25 +6,6 @@
 extern "C" {
 #endif
 
-#include <xtt.h>
-#include <sodium.h>
-
-#include <ecdaa.h>
-
-#include "test-utils.h"
-
-#include "../src/internal/message_utils.h"
-#include "../src/internal/byte_utils.h"
-
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <assert.h>
-#include <stdlib.h>
-
-#include <xtt/context.h>
-#include <xtt/crypto_types.h>
-#include <xtt/return_codes.h>
 
 struct xtt_client_ctxhelper {
     unsigned char in[MAX_HANDSHAKE_SERVER_MESSAGE_LENGTH];
@@ -33,12 +14,19 @@ struct xtt_client_ctxhelper {
     unsigned char *io_ptr;
     uint16_t bytes_requested;
     xtt_return_code_type rc;
+    struct xtt_server_root_certificate_context server_root_cert;
+    struct xtt_client_group_context group_ctx;
+    xtt_certificate_root_id roots_id;
+    xtt_group_id gid;
+    xtt_version version;
+    xtt_suite_spec suite_spec;
 };
 
-void setup_client_input(struct xtt_server_root_certificate_context* server_root_cert,
-                        struct xtt_client_ctxhelper* client,
-                        struct xtt_client_group_context* group_ctx){
-    xtt_group_id gid;
+void setup_client_input(struct xtt_client_ctxhelper *client){
+
+    client->roots_id = (xtt_certificate_root_id){.data={0x30, 0x30, 0x30, 0x30,
+        0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x31}};
+
     xtt_daa_priv_key_lrsw daa_priv_key = {.data = {0xca, 0x6b, 0x40, 0x60, 0x76, 0xde, 0x8e, 0xba, 0x4b, 0x16, 0xb8, 0x8b,
     0xb8, 0xef, 0xf4, 0xa6, 0xd7, 0xac, 0x8d, 0x70, 0x2e, 0x4a, 0x64, 0xf4,
     0x55, 0xd5, 0x1a, 0xe8, 0xf0, 0xd1, 0x33, 0xdb}};
@@ -66,22 +54,23 @@ void setup_client_input(struct xtt_server_root_certificate_context* server_root_
     0xae, 0xb7, 0x82, 0x5c, 0xdc, 0x62, 0xc7, 0x70}};
 
     const unsigned char basename[] = {0x42, 0x41, 0x53, 0x45, 0x4e, 0x41, 0x4d, 0x45};
-    uint16_t basename_length = 8;
+    uint16_t basename_length = sizeof(basename);
 
-    xtt_certificate_root_id roots_id = {.data = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x30, 0x30, 0x30, 0x31}};
 
     xtt_ed25519_pub_key root_pub_key = {.data = {0xa1, 0xce, 0xaf, 0xed, 0x2f, 0x4e, 0x17, 0x0f, 0x9a, 0x17, 0x6b, 0x17,
     0xb5, 0x3c, 0x54, 0x95, 0xef, 0xe5, 0xa5, 0x41, 0xde, 0x3d, 0x79, 0xf2,
     0x30, 0x08, 0x5d, 0xc1, 0xb2, 0xed, 0xe0, 0x18}};
 
-    memset(gid.data, 0, sizeof(xtt_group_id));
+    memset(client->gid.data, 0, sizeof(xtt_group_id));
 
-    client->rc = xtt_initialize_client_group_context_lrsw(group_ctx, &gid, &daa_priv_key, &daa_cred, basename, basename_length);
-    assert(client->rc==XTT_RETURN_SUCCESS);
+    client->rc = xtt_initialize_client_group_context_lrsw(&client->group_ctx, &client->gid, &daa_priv_key, &daa_cred, basename, basename_length);
+    EXPECT_EQ(client->rc, XTT_RETURN_SUCCESS);
 
-    client->rc = xtt_initialize_server_root_certificate_context_ed25519(server_root_cert, &roots_id, &root_pub_key);
-    assert(client->rc == XTT_RETURN_SUCCESS);
+    client->rc = xtt_initialize_server_root_certificate_context_ed25519(&client->server_root_cert, &client->roots_id, &root_pub_key);
+    EXPECT_EQ(client->rc, XTT_RETURN_SUCCESS);
+
+    client->rc = xtt_initialize_client_handshake_context(&client->ctx, client->in , sizeof(client->in), client->out, sizeof(client->out), client->version, client->suite_spec);
+    EXPECT_EQ(client->rc, XTT_RETURN_SUCCESS);
 }
 
 #ifdef __cplusplus
