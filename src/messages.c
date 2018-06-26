@@ -1,13 +1,13 @@
 /******************************************************************************
  *
  * Copyright 2018 Xaptum, Inc.
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -499,7 +499,7 @@ xtt_handshake_client_start(uint16_t* io_bytes_requested,
 
     // 5) Generate nonce.
     xtt_crypto_get_random(xtt_clientinit_access_nonce(ctx->base.out_message_start, ctx->base.version)->data,
-                         sizeof(xtt_signing_nonce)); 
+                         sizeof(xtt_signing_nonce));
 
     // 6) Set Diffie-Hellman key pair.
     // Key pair is assumed to have been generated previously
@@ -555,7 +555,6 @@ xtt_handshake_server_handle_connect(uint16_t *io_bytes_requested,
 
     // 2) Set io_ptr to beginning of ctx->base.in_buffer
     *io_ptr = ctx->base.in_message_start;
-
     // 3) Set current state
     ctx->state = XTT_SERVER_HANDSHAKE_STATE_READING_CLIENTINITHEADER;
 
@@ -585,6 +584,7 @@ xtt_handshake_server_build_serverattest(uint16_t* io_bytes_requested,
 
     // 0i) Ensure we've read enough
     uint16_t bytes_io_performed_for_this_message = ctx->base.in_end - ctx->base.in_message_start;
+
     // Re-read message length
     // (since we don't yet know version and suite_spec, and thus can't calculate it).
     uint16_t message_length;
@@ -603,26 +603,20 @@ xtt_handshake_server_build_serverattest(uint16_t* io_bytes_requested,
         rc = XTT_RETURN_BAD_HANDSHAKE_ORDER;
         goto finish;
     }
-
     // 1) Parse ClientInit and initialize our handshake_context using it.
     rc = parse_client_init(ctx, ctx->base.in_message_start);
     if (XTT_RETURN_SUCCESS != rc)
         goto finish;
-
     // 2) Set message type.
     *xtt_access_msg_type(ctx->base.out_message_start) = XTT_SERVERINITANDATTEST_MSG;
-
     // 3) Set length.
     short_to_bigendian(xtt_serverinitandattest_total_length(ctx->base.version, ctx->base.suite_spec),
                        xtt_access_length(ctx->base.out_message_start));
-
     // 4) Set version.
     *xtt_access_version(ctx->base.out_message_start) = ctx->base.version;
-
     // 5) Set suite spec.
     short_to_bigendian(ctx->base.suite_spec,
                        xtt_serverinitandattest_access_suite_spec(ctx->base.out_message_start, ctx->base.version));
-
     // 6) Copy own Diffie-Hellman public key.
     ctx->base.copy_dh_pubkey(xtt_serverinitandattest_access_ecdhe_key(ctx->base.out_message_start,
                                                                           ctx->base.version),
@@ -637,13 +631,17 @@ xtt_handshake_server_build_serverattest(uint16_t* io_bytes_requested,
                              cookie_ctx);
     if (XTT_RETURN_SUCCESS != rc)
         goto finish;
+    printf("%hu\n", xtt_server_certificate_length(ctx->base.suite_spec));
+    printf("%lu\n", sizeof(xtt_encrypted_serverinitandattest_access_certificate(ctx->base.buffer,
+                                                                ctx->base.version)));
+    printf("%lu\n", sizeof(certificate_ctx->serialized_certificate));
 
     // 8) Copy own certificate.
-    memcpy(xtt_encrypted_serverinitandattest_access_certificate(ctx->base.buffer, 
+    memcpy(xtt_encrypted_serverinitandattest_access_certificate(ctx->base.buffer,
                                                                 ctx->base.version),
            certificate_ctx->serialized_certificate,
            xtt_server_certificate_length(ctx->base.suite_spec));
-
+    printf("20\n");
     // 9) Create signature.
     rc = generate_server_signature(xtt_encrypted_serverinitandattest_access_signature(ctx->base.buffer,
                                                                                       ctx->base.version,

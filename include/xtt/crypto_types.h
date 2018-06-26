@@ -82,7 +82,7 @@ typedef struct {unsigned char data[389];} xtt_daa_signature_lrsw;
 typedef struct {unsigned char data[65];} xtt_daa_pseudonym_lrsw;
 
 /* Diffie-Hellman */
-typedef struct {unsigned char data[65];} xtt_x25519_pub_key;
+typedef struct {unsigned char data[32];} xtt_x25519_pub_key;
 typedef struct {unsigned char data[32];} xtt_x25519_priv_key;
 typedef struct {unsigned char data[32];} xtt_x25519_shared_secret;
 
