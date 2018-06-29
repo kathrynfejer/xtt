@@ -631,17 +631,13 @@ xtt_handshake_server_build_serverattest(uint16_t* io_bytes_requested,
                              cookie_ctx);
     if (XTT_RETURN_SUCCESS != rc)
         goto finish;
-    printf("%hu\n", xtt_server_certificate_length(ctx->base.suite_spec));
-    printf("%lu\n", sizeof(xtt_encrypted_serverinitandattest_access_certificate(ctx->base.buffer,
-                                                                ctx->base.version)));
-    printf("%lu\n", sizeof(certificate_ctx->serialized_certificate));
 
     // 8) Copy own certificate.
     memcpy(xtt_encrypted_serverinitandattest_access_certificate(ctx->base.buffer,
                                                                 ctx->base.version),
            certificate_ctx->serialized_certificate,
            xtt_server_certificate_length(ctx->base.suite_spec));
-    printf("20\n");
+
     // 9) Create signature.
     rc = generate_server_signature(xtt_encrypted_serverinitandattest_access_signature(ctx->base.buffer,
                                                                                       ctx->base.version,

@@ -57,7 +57,7 @@ void setup_client_input(struct xtt_client_ctxhelper *client){
     uint16_t basename_length = sizeof(basename);
 
 
-    xtt_ed25519_pub_key root_pub_key = {.data = {0xa1, 0xce, 0xaf, 0xed, 0x2f, 0x4e, 0x17, 0x0f, 0x9a, 0x17, 0x6b, 0x17,
+    xtt_ecdsap256_pub_key root_pub_key = {.data = {0xa1, 0xce, 0xaf, 0xed, 0x2f, 0x4e, 0x17, 0x0f, 0x9a, 0x17, 0x6b, 0x17,
     0xb5, 0x3c, 0x54, 0x95, 0xef, 0xe5, 0xa5, 0x41, 0xde, 0x3d, 0x79, 0xf2,
     0x30, 0x08, 0x5d, 0xc1, 0xb2, 0xed, 0xe0, 0x18}};
 
@@ -66,7 +66,7 @@ void setup_client_input(struct xtt_client_ctxhelper *client){
     client->rc = xtt_initialize_client_group_context_lrsw(&client->group_ctx, &client->gid, &daa_priv_key, &daa_cred, basename, basename_length);
     EXPECT_EQ(client->rc, XTT_RETURN_SUCCESS);
 
-    client->rc = xtt_initialize_server_root_certificate_context_ed25519(&client->server_root_cert, &client->roots_id, &root_pub_key);
+    client->rc = xtt_initialize_server_root_certificate_context_ecdsap256(&client->server_root_cert, &client->roots_id, &root_pub_key);
     EXPECT_EQ(client->rc, XTT_RETURN_SUCCESS);
 
     client->rc = xtt_initialize_client_handshake_context(&client->ctx, client->in , sizeof(client->in), client->out, sizeof(client->out), client->version, client->suite_spec);

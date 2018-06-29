@@ -88,13 +88,13 @@ typedef struct {unsigned char data[32];} xtt_x25519_shared_secret;
 
 /* LongtermSignature types */
 typedef enum xtt_server_signature_type {
-    XTT_SERVER_SIGNATURE_TYPE_ED25519 = 1,
+    XTT_SERVER_SIGNATURE_TYPE_ECDSAP256 = 1,
 } xtt_server_signature_type;
 
-typedef struct {unsigned char data[65];} xtt_ed25519_pub_key;
+typedef struct {unsigned char data[65];} xtt_ecdsap256_pub_key;
 /* TODO: This is not just the priv key, it holds cached info for optimized signing, too */
-typedef struct {unsigned char data[32];} xtt_ed25519_priv_key; //need to change size but cant because effects current other code
-typedef struct {unsigned char data[64];} xtt_ed25519_signature;
+typedef struct {unsigned char data[32];} xtt_ecdsap256_priv_key;
+typedef struct {unsigned char data[64];} xtt_ecdsap256_signature;
 
 typedef struct {char data[8];} xtt_certificate_expiry;
 

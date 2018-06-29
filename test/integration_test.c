@@ -84,6 +84,7 @@ void client_step_two(struct xtt_client_ctxhelper* client, struct network_helper*
                                                     &client->server_root_cert, &xtt_null_identity,
                                                     &intended_server_id, &client->group_ctx,
                                                     &client->ctx);
+    printf("%s\n", xtt_strerror(client->rc));
     EXPECT_EQ(client->rc, XTT_RETURN_WANT_WRITE);
     client_write_to_network(client, network);
     EXPECT_EQ(client->rc, XTT_RETURN_WANT_READ);
@@ -175,19 +176,19 @@ void handshake_checks(struct xtt_client_ctxhelper* client, struct xtt_server_ctx
     EXPECT_EQ(XTT_RETURN_SUCCESS, client->rc);
     TEST_ASSERT(0 == memcmp(&assigned_id.data, &client_id->data, sizeof(xtt_identity_type)));
 
-    xtt_ed25519_pub_key clients_longterm_key;
-    server->rc = xtt_get_clients_longterm_key_ed25519(&clients_longterm_key, &server->ctx);
+    xtt_ecdsap256_pub_key clients_longterm_key;
+    server->rc = xtt_get_clients_longterm_key_ecdsap256(&clients_longterm_key, &server->ctx);
     EXPECT_EQ(XTT_RETURN_SUCCESS, server->rc);
-    xtt_ed25519_pub_key my_longterm_key;
-    client->rc = xtt_get_my_longterm_key_ed25519(&my_longterm_key, &client->ctx);
+    xtt_ecdsap256_pub_key my_longterm_key;
+    client->rc = xtt_get_my_longterm_key_ecdsap256(&my_longterm_key, &client->ctx);
     EXPECT_EQ(XTT_RETURN_SUCCESS, client->rc);
-    TEST_ASSERT(0 == memcmp(my_longterm_key.data, clients_longterm_key.data, sizeof(xtt_ed25519_pub_key)));
+    TEST_ASSERT(0 == memcmp(my_longterm_key.data, clients_longterm_key.data, sizeof(xtt_ecdsap256_pub_key)));
 
     xtt_daa_pseudonym_lrsw pseudonym_out;
     server->rc = xtt_get_clients_pseudonym_lrsw(&pseudonym_out, &server->ctx);
     EXPECT_EQ(XTT_RETURN_SUCCESS, server->rc);
 
-    xtt_ed25519_priv_key longterm_key_priv_out;
-    client->rc = xtt_get_my_longterm_private_key_ed25519(&longterm_key_priv_out, &client->ctx);
+    xtt_ecdsap256_priv_key longterm_key_priv_out;
+    client->rc = xtt_get_my_longterm_private_key_ecdsap256(&longterm_key_priv_out, &client->ctx);
     EXPECT_EQ(XTT_RETURN_SUCCESS, client->rc);
 }

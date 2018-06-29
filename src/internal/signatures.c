@@ -1,13 +1,13 @@
 /******************************************************************************
  *
  * Copyright 2018 Xaptum, Inc.
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -238,6 +238,7 @@ verify_server_signature(const unsigned char *signature,
     xtt_certificate_root_id *claimed_root
         = (xtt_certificate_root_id*)xtt_server_certificate_access_rootid(xtt_encrypted_serverinitandattest_access_certificate(server_initandattest_encryptedpart_uptosignature,
                                                                                                   handshake_ctx->base.version));
+
     if (0 != xtt_crypto_memcmp(root_server_certificate->id.data, claimed_root->data, sizeof(xtt_certificate_root_id)))
         return XTT_RETURN_BAD_CERTIFICATE;
 
@@ -302,7 +303,7 @@ generate_server_sig_hash(unsigned char *hash_out,
                                                           handshake_ctx->suite_spec));
     hash_input += xtt_serverinitandattest_unencrypted_part_length(handshake_ctx->version,
                                                                  handshake_ctx->suite_spec);
-                                                                                            
+
     // 1iv) Copy in the ServerInitAndAttest encrypted-part-up-to-signature to the hash input buffer.
     memcpy(hash_input,
            server_initandattest_encryptedpart_uptosignature,

@@ -1,13 +1,13 @@
 /******************************************************************************
  *
  * Copyright 2018 Xaptum, Inc.
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -161,7 +161,7 @@ uint16_t xtt_serverinitandattest_encrypted_part_length(xtt_version version,
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
                     return xtt_server_certificate_length(suite_spec)
-                           + sizeof(xtt_ed25519_signature);
+                           + sizeof(xtt_ecdsap256_signature);
             }
     }
 
@@ -373,8 +373,8 @@ uint16_t xtt_identityclientattest_encrypted_part_length(xtt_version version,
                 case XTT_X25519_LRSW_ED25519_CHACHA20POLY1305_BLAKE2B:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
-                    return sizeof(xtt_ed25519_pub_key)
-                           + sizeof(xtt_ed25519_signature)
+                    return sizeof(xtt_ecdsap256_pub_key)
+                           + sizeof(xtt_ecdsap256_signature)
                            + sizeof(xtt_group_id)
                            + sizeof(xtt_identity_type)
                            + sizeof(xtt_daa_signature_lrsw);
@@ -425,7 +425,7 @@ xtt_identityclientattest_uptofirstsignature_length(xtt_version version,
                            + sizeof(xtt_version_raw)
                            + sizeof(xtt_suite_spec_raw)
                            + sizeof(xtt_server_cookie)
-                           + sizeof(xtt_ed25519_pub_key)
+                           + sizeof(xtt_ecdsap256_pub_key)
                            + sizeof(xtt_group_id)
                            + sizeof(xtt_identity_type);
             }
@@ -446,7 +446,7 @@ xtt_identityclientattest_encrypted_part_uptofirstsignature_length(xtt_version ve
                 case XTT_X25519_LRSW_ED25519_CHACHA20POLY1305_BLAKE2B:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
-                    return sizeof(xtt_ed25519_pub_key)
+                    return sizeof(xtt_ecdsap256_pub_key)
                            + sizeof(xtt_group_id)
                            + sizeof(xtt_identity_type);
             }
@@ -515,7 +515,7 @@ xtt_encrypted_identityclientattest_access_gid(const unsigned char *encrypted_sta
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
                     return (unsigned char*)(encrypted_start
-                                            + sizeof(xtt_ed25519_pub_key));
+                                            + sizeof(xtt_ecdsap256_pub_key));
             }
     }
 
@@ -536,7 +536,7 @@ xtt_encrypted_identityclientattest_access_id(const unsigned char *encrypted_star
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
                     return (unsigned char*)(encrypted_start
-                                            + sizeof(xtt_ed25519_pub_key)
+                                            + sizeof(xtt_ecdsap256_pub_key)
                                             + sizeof(xtt_group_id));
             }
     }
@@ -558,7 +558,7 @@ xtt_encrypted_identityclientattest_access_longtermsignature(const unsigned char 
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
                     return (unsigned char*)(encrypted_start
-                                            + sizeof(xtt_ed25519_pub_key)
+                                            + sizeof(xtt_ecdsap256_pub_key)
                                             + sizeof(xtt_group_id)
                                             + sizeof(xtt_identity_type));
             }
@@ -581,10 +581,10 @@ xtt_encrypted_identityclientattest_access_daasignature(const unsigned char *encr
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
                     return (unsigned char*)(encrypted_start
-                                            + sizeof(xtt_ed25519_pub_key)
+                                            + sizeof(xtt_ecdsap256_pub_key)
                                             + sizeof(xtt_group_id)
                                             + sizeof(xtt_identity_type)
-                                            + sizeof(xtt_ed25519_signature));
+                                            + sizeof(xtt_ecdsap256_signature));
             }
     }
 
@@ -617,7 +617,7 @@ uint16_t xtt_identityserverfinished_encrypted_part_length(xtt_version version,
                 case XTT_X25519_LRSW_ED25519_AES256GCM_SHA512:
                 case XTT_X25519_LRSW_ED25519_AES256GCM_BLAKE2B:
                     return sizeof(xtt_identity_type)
-                           + sizeof(xtt_ed25519_pub_key);
+                           + sizeof(xtt_ecdsap256_pub_key);
             }
     }
 

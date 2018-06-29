@@ -77,21 +77,21 @@ int xtt_crypto_prf_blake2b(unsigned char* out,
                            const unsigned char* key,
                            uint16_t key_len);
 
-int xtt_crypto_create_ed25519_key_pair(xtt_ed25519_pub_key *pub_key,
-                                       xtt_ed25519_priv_key *priv_key);
+int xtt_crypto_create_ecdsap256_key_pair(xtt_ecdsap256_pub_key *pub_key,
+                                       xtt_ecdsap256_priv_key *priv_key);
 
-int xtt_crypto_extract_ed25519_private_key(unsigned char *out,
-                                           const xtt_ed25519_priv_key *priv_key);
+int xtt_crypto_extract_ecdsap256_private_key(unsigned char *out,
+                                           const xtt_ecdsap256_priv_key *priv_key);
 
-int xtt_crypto_sign_ed25519(unsigned char* signature_out,
+int xtt_crypto_sign_ecdsap256(unsigned char* signature_out,
                             const unsigned char* msg,
                             uint16_t msg_len,
-                            const xtt_ed25519_priv_key* priv_key);
+                            const xtt_ecdsap256_priv_key* priv_key);
 
-int xtt_crypto_verify_ed25519(const unsigned char* signature,
+int xtt_crypto_verify_ecdsap256(const unsigned char* signature,
                               const unsigned char* msg,
                               uint16_t msg_len,
-                              const xtt_ed25519_pub_key* pub_key);
+                              const xtt_ecdsap256_pub_key* pub_key);
 
 int xtt_crypto_aead_chacha_encrypt(unsigned char* ciphertext,
                                    uint16_t* ciphertext_len,
@@ -130,13 +130,13 @@ int xtt_crypto_aead_aes256_decrypt(unsigned char* decrypted,
                                    const xtt_aes256_key* key);
 
 
-int xtt_crypto_create_ecdsap256(xtt_ed25519_pub_key *pub_key, xtt_ed25519_priv_key *priv_key);
+int xtt_crypto_create_ecdsap256(xtt_ecdsap256_pub_key *pub_key, xtt_ecdsap256_priv_key *priv_key);
 int xtt_crypto_sign_ecdsap256(unsigned char* signature_out, const unsigned char* msg,
-                            uint16_t msg_len, const xtt_ed25519_priv_key* priv_key);
+                            uint16_t msg_len, const xtt_ecdsap256_priv_key* priv_key);
 int xtt_crypto_verify_ecdsap256(const unsigned char* signature,
                               const unsigned char* msg,
                               uint16_t msg_len,
-                              const xtt_ed25519_pub_key* pub_key);
+                              const xtt_ecdsap256_pub_key* pub_key);
 
 #ifdef __cplusplus
 }
