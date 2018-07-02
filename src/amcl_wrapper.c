@@ -18,7 +18,7 @@ int xtt_crypto_sign_ecdsap256(unsigned char* signature_out,
                             uint16_t msg_len,
                             const xtt_ecdsap256_priv_key* priv_key){
     //assert(sizeof(xtt_ecdsap256_signature) == 2*EGS_NIST256);
-    octet msg_in = {.val = (char *)msg, .len = msg_len};
+    octet msg_in = {.val = (char *)msg, .len = msg_len, .max = MAX_HANDSHAKE_CLIENT_MESSAGE_LENGTH};
     octet priv_sign_key_in = {.val = (char*)priv_key->data, .len = sizeof(xtt_ecdsap256_priv_key), .max = sizeof(xtt_ecdsap256_priv_key)};
     char ephem_key_buffer[EGS_NIST256];
     octet ephem_key = {.val = ephem_key_buffer, .len = sizeof(ephem_key_buffer), .max = sizeof(ephem_key_buffer)};
