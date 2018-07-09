@@ -292,15 +292,25 @@ int longterm_sign_ecdsap256(unsigned char *signature_out,
                                    &self->longterm_private_key.ecdsap256);
 }
 
-int verify_root_ecdsap256(const unsigned char *signature,
+int verify_root_ecdsap256(const unsigned char *signature, //equivalent to verify_signature
                         const struct xtt_server_certificate_raw_type *certificate,
                         const struct xtt_server_root_certificate_context *self)
 {
+    printf("6\nSignature: ");
+    for(unsigned long i = 0; i < 64; i++){
+        printf("%x ", signature[i]);
+    }
+    printf("\n6.25\nMessage: ");
+
+    printf("%s ", (unsigned char*)certificate);
+
+    printf("\nmessage length: %hu \n", xtt_server_certificate_length_uptosignature_fromsignaturetype(XTT_SERVER_SIGNATURE_TYPE_ECDSAP256));
     int ret = xtt_crypto_verify_ecdsap256(signature,
                                         (unsigned char*)certificate,
                                         xtt_server_certificate_length_uptosignature_fromsignaturetype(XTT_SERVER_SIGNATURE_TYPE_ECDSAP256),
                                         &self->public_key.ecdsap256);
     if (0 != ret) {
+        printf("%d\n", ret);
         return XTT_RETURN_BAD_ROOT_SIGNATURE;
     } else {
         return XTT_RETURN_SUCCESS;
@@ -350,7 +360,7 @@ int sign_lrsw(unsigned char *signature_out,
     return XTT_RETURN_SUCCESS;
 }
 
-int verify_lrsw(unsigned char *signature,
+int verify_lrsw(unsigned char *signature,   //equivalent to verify_signature
                 unsigned char *msg,
                 uint16_t msg_len,
                 struct xtt_group_public_key_context *self)

@@ -71,7 +71,7 @@ xtt_server_certificate_length_fromsignaturetype(xtt_server_signature_type type)
                        + sizeof(xtt_certificate_root_id)
                        + sizeof(xtt_ecdsap256_pub_key)
                        + sizeof(xtt_ecdsap256_signature);
-    }
+    }              //returns 169 when using ECDSA_P256
 
     assert(0);
     return 0;

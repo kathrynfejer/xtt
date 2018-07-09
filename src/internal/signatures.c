@@ -244,14 +244,12 @@ verify_server_signature(const unsigned char *signature,
 
     // 4) Check that the root signature in the server cert verifies using that root cert.
     struct xtt_server_certificate_raw_type *certificate = xtt_encrypted_serverinitandattest_access_certificate(server_initandattest_encryptedpart_uptosignature,
-                                                                                                               handshake_ctx->base.version);
-    rc = root_server_certificate->verify_signature(xtt_server_certificate_access_rootsignature(certificate,
-                                                                                               handshake_ctx->base.suite_spec),
-                                                   certificate,
-                                                   root_server_certificate);
+                                                                                                           handshake_ctx->base.version);
+    rc = root_server_certificate->verify_signature(xtt_server_certificate_access_rootsignature(certificate, handshake_ctx->base.suite_spec),
+                                                                                               certificate,
+                                                                                               root_server_certificate);
     if (XTT_RETURN_SUCCESS != rc)
         return rc;
-
     // 5) Check that the server signature verifies using the server cert.
     rc = generate_server_sig_hash(handshake_ctx->base.hash_out_buffer,
                                   client_init,

@@ -1,4 +1,5 @@
 #include <../../amcl/include/ecdh_NIST256.h>
+#include <../../amcl/include/x509.h>
 #include <sodium.h>
 #include <xtt.h>
 #include <xtt/crypto_wrapper.h>
@@ -46,4 +47,13 @@ int xtt_crypto_verify_ecdsap256(const unsigned char* signature,
     }
 
     return out;
+}
+
+int extract_sig_type(unsigned char *certificate){
+    octet cert = {.val = (char *)certificate, .len = XTT_X509_CERTIFICATE_LENGTH, .max = XTT_X509_CERTIFICATE_LENGTH};
+    unsigned char sarray[sizeof(xtt_ecdsap256_signature)];
+    octet s = {.val = (char *)sarray, .len = sizeof(xtt_ecdsap256_signature), .max = sizeof(xtt_ecdsap256_signature)};
+    assert(&X509_extract_cert_sig!=0);
+    pktype p = X509_extract_cert_sig(&cert, &s);
+    return p.hash;
 }

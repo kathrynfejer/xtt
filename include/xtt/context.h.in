@@ -197,7 +197,7 @@ struct xtt_handshake_context {
     xtt_server_cookie server_cookie;
     unsigned char hash_buffer[HASH_BUFFER_SIZE];
     unsigned char client_init_buffer[80];
-    unsigned char server_initandattest_buffer[233];// changed from 200 with ecdsa
+    unsigned char server_initandattest_buffer[233];// changed from 200
     unsigned char server_signature_buffer[sizeof(xtt_ecdsap256_signature)];
     // TODO: properly size this
     unsigned char clientattest_buffer[1024];

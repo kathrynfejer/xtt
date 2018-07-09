@@ -42,6 +42,7 @@ int xtt_x509_from_ecdsap256_keypair(const xtt_ecdsap256_pub_key *pub_key_in,
                                   unsigned char *certificate_out,
                                   size_t certificate_out_length)
 {
+    printf("%zu", get_certificate_length());
     assert(XTT_X509_CERTIFICATE_LENGTH == get_certificate_length());
 
     unsigned char *pub_key_location;

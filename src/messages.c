@@ -555,6 +555,7 @@ xtt_handshake_server_handle_connect(uint16_t *io_bytes_requested,
 
     // 2) Set io_ptr to beginning of ctx->base.in_buffer
     *io_ptr = ctx->base.in_message_start;
+
     // 3) Set current state
     ctx->state = XTT_SERVER_HANDSHAKE_STATE_READING_CLIENTINITHEADER;
 
@@ -584,7 +585,6 @@ xtt_handshake_server_build_serverattest(uint16_t* io_bytes_requested,
 
     // 0i) Ensure we've read enough
     uint16_t bytes_io_performed_for_this_message = ctx->base.in_end - ctx->base.in_message_start;
-
     // Re-read message length
     // (since we don't yet know version and suite_spec, and thus can't calculate it).
     uint16_t message_length;
@@ -603,20 +603,26 @@ xtt_handshake_server_build_serverattest(uint16_t* io_bytes_requested,
         rc = XTT_RETURN_BAD_HANDSHAKE_ORDER;
         goto finish;
     }
+
     // 1) Parse ClientInit and initialize our handshake_context using it.
     rc = parse_client_init(ctx, ctx->base.in_message_start);
     if (XTT_RETURN_SUCCESS != rc)
         goto finish;
+
     // 2) Set message type.
     *xtt_access_msg_type(ctx->base.out_message_start) = XTT_SERVERINITANDATTEST_MSG;
+
     // 3) Set length.
     short_to_bigendian(xtt_serverinitandattest_total_length(ctx->base.version, ctx->base.suite_spec),
                        xtt_access_length(ctx->base.out_message_start));
+
     // 4) Set version.
     *xtt_access_version(ctx->base.out_message_start) = ctx->base.version;
+
     // 5) Set suite spec.
     short_to_bigendian(ctx->base.suite_spec,
                        xtt_serverinitandattest_access_suite_spec(ctx->base.out_message_start, ctx->base.version));
+
     // 6) Copy own Diffie-Hellman public key.
     ctx->base.copy_dh_pubkey(xtt_serverinitandattest_access_ecdhe_key(ctx->base.out_message_start,
                                                                           ctx->base.version),
@@ -791,7 +797,6 @@ xtt_handshake_client_build_idclientattest(uint16_t *io_bytes_requested,
                                           struct xtt_client_handshake_context* handshake_ctx)
 {
     xtt_return_code_type rc;
-
     // 0i) Ensure we've read enough
     uint16_t bytes_io_performed_for_this_message = handshake_ctx->base.in_end - handshake_ctx->base.in_message_start;
     uint16_t message_length = xtt_serverinitandattest_total_length(handshake_ctx->base.version, handshake_ctx->base.suite_spec);
@@ -804,7 +809,6 @@ xtt_handshake_client_build_idclientattest(uint16_t *io_bytes_requested,
         *io_bytes_requested = message_length - bytes_io_performed_for_this_message;
         return XTT_RETURN_WANT_READ;
     }
-
     // 0ii) Ensure we're in the correct state
     if (XTT_CLIENT_HANDSHAKE_STATE_BUILDING_IDCLIENTATTEST != handshake_ctx->state) {
         rc = XTT_RETURN_BAD_HANDSHAKE_ORDER;

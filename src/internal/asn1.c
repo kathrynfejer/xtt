@@ -243,7 +243,7 @@ build_signature_algorithm(unsigned char **current_loc)
 
 
 
-void
+void    //new function to accomodate for curve
 build_curveandpublickey(unsigned char **current_loc)
 {
     set_as_sequence(current_loc);

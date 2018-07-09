@@ -245,7 +245,8 @@ int xtt_crypto_prf_blake2b(unsigned char* out,
 int xtt_crypto_extract_ecdsap256_private_key(unsigned char *out,
                                            const xtt_ecdsap256_priv_key *priv_key)
 {
-    return crypto_sign_ed25519_sk_to_seed(out, priv_key->data);
+    crypto_sign_ed25519_sk_to_seed(out, priv_key->data);
+    return 0;
 }
 
 // int xtt_crypto_sign_ed25519(unsigned char* signature_out,
