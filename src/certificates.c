@@ -132,7 +132,7 @@ unsigned char*
 xtt_server_certificate_access_expiry(const struct xtt_server_certificate_raw_type *certificate)
 {
     return (unsigned char*)(certificate)
-                            + sizeof(xtt_identity_type);
+                            + sizeof(xtt_identity_type) +31;
 }
 
 unsigned char*

@@ -105,17 +105,19 @@ build_x509_skeleton(unsigned char *certificate_out,
                     const char *common_name)
 {
     unsigned char *current_loc = certificate_out;
-
+    printf("begins at: %p\n", current_loc);
     set_as_sequence(&current_loc);
+    printf("after seq: %p\n", current_loc);
     set_length(&current_loc, certificate_length - 1 - 3);
+    printf("after set length: %p\n", current_loc);
 
     *signature_input_location = current_loc;
     *signature_input_length = tbs_certificate_length;
 
     build_tbs_certificate(&current_loc, pubkey_location, common_name);
-
+    printf("after build tbs: %p\n", current_loc);
     build_signature_algorithm(&current_loc);
-
+    printf("after signature algorithm: %p\n", current_loc);
     *current_loc = BITSTRING_TAG;
     current_loc += 1;
     set_length(&current_loc, signature_value_length - 1 - 1);
@@ -161,6 +163,7 @@ build_asn1_key_skeleton(unsigned char *asn1_out,
     unsigned char *current_loc = asn1_out;
 
     set_as_sequence(&current_loc);
+
     set_length(&current_loc, asn1_privatekey_length - 1 - 1);
 
     build_privkey_version(&current_loc);
@@ -190,6 +193,7 @@ build_tbs_certificate(unsigned char **current_loc,
                       const char *common_name)
 {
     set_as_sequence(current_loc);
+
     set_length(current_loc, tbs_certificate_length - 1 - 2);
 
     build_serial_number(current_loc);
@@ -279,7 +283,6 @@ build_serial_number(unsigned char **current_loc)
     // Nb. We're only generating 19 bytes of randomness
     xtt_crypto_get_random(*current_loc, len-1);
     (*current_loc)[0] &= 0x7F;   // clear msb, to ensure it's positive
-
     *current_loc += len;
 }
 
