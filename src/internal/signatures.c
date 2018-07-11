@@ -329,6 +329,7 @@ is_expiry_passed(const xtt_certificate_expiry *expiry)
     struct tm *now = gmtime(&now_timet);
 
     int year, month, day;
+    printf("out expiry scanf: %s\n", expiry->data);
     if (3 != sscanf(expiry->data, "%4d%2d%2d", &year, &month, &day))
         return XTT_RETURN_BAD_EXPIRY;
 

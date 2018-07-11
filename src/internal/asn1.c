@@ -105,19 +105,17 @@ build_x509_skeleton(unsigned char *certificate_out,
                     const char *common_name)
 {
     unsigned char *current_loc = certificate_out;
-    printf("begins at: %p\n", current_loc);
+
     set_as_sequence(&current_loc);
-    printf("after seq: %p\n", current_loc);
     set_length(&current_loc, certificate_length - 1 - 3);
-    printf("after set length: %p\n", current_loc);
 
     *signature_input_location = current_loc;
     *signature_input_length = tbs_certificate_length;
 
     build_tbs_certificate(&current_loc, pubkey_location, common_name);
-    printf("after build tbs: %p\n", current_loc);
+
     build_signature_algorithm(&current_loc);
-    printf("after signature algorithm: %p\n", current_loc);
+
     *current_loc = BITSTRING_TAG;
     current_loc += 1;
     set_length(&current_loc, signature_value_length - 1 - 1);
@@ -163,7 +161,6 @@ build_asn1_key_skeleton(unsigned char *asn1_out,
     unsigned char *current_loc = asn1_out;
 
     set_as_sequence(&current_loc);
-
     set_length(&current_loc, asn1_privatekey_length - 1 - 1);
 
     build_privkey_version(&current_loc);
@@ -193,7 +190,6 @@ build_tbs_certificate(unsigned char **current_loc,
                       const char *common_name)
 {
     set_as_sequence(current_loc);
-
     set_length(current_loc, tbs_certificate_length - 1 - 2);
 
     build_serial_number(current_loc);
@@ -207,6 +203,8 @@ build_tbs_certificate(unsigned char **current_loc,
     build_name(current_loc, common_name);    // subject name
 
     build_subjectpublickeyinfo(current_loc, pubkey_location);
+
+    build_curve(current_loc);
 }
 
 void
@@ -245,30 +243,26 @@ build_signature_algorithm(unsigned char **current_loc)
     *current_loc += 8;
 }
 
-
-
-void    //new function to accomodate for curve
-build_curveandpublickey(unsigned char **current_loc)
+void
+build_curve(unsigned char **current_loc)
 {
     set_as_sequence(current_loc);
-    set_length(current_loc, ecdsap256_algid_length - 1 - 1);
+    set_length(current_loc, ecpublickey_oid_length + prime256v1_oid_length);
 
     **current_loc = OBJECTIDENTIFIER_TAG;
     *current_loc += 1;
-    set_length(current_loc, ecdsa_w_sha256_oid_length - 1 - 1);
+    set_length(current_loc, ecpublickey_oid_length - 1 - 1);
 
     memcpy(*current_loc, ECPUBLICKEY_OID, 7);
     *current_loc += 7;
 
     **current_loc = OBJECTIDENTIFIER_TAG;
     *current_loc += 1;
-    set_length(current_loc, ecdsa_w_sha256_oid_length - 1 - 1);
+    set_length(current_loc, prime256v1_oid_length - 1 - 1);
 
     memcpy(*current_loc, PRIME256V1_OID, 8);
     *current_loc += 8;
 }
-
-
 
 void
 build_serial_number(unsigned char **current_loc)
@@ -283,6 +277,7 @@ build_serial_number(unsigned char **current_loc)
     // Nb. We're only generating 19 bytes of randomness
     xtt_crypto_get_random(*current_loc, len-1);
     (*current_loc)[0] &= 0x7F;   // clear msb, to ensure it's positive
+
     *current_loc += len;
 }
 
@@ -343,8 +338,7 @@ build_subjectpublickeyinfo(unsigned char **current_loc, unsigned char **pubkey_l
     set_as_sequence(current_loc);
     set_length(current_loc, subjectpublickeyinfo_length - 1 - 1);
 
-    //build_signature_algorithm(current_loc);
-    build_curveandpublickey(current_loc);
+    build_signature_algorithm(current_loc);
 
     **current_loc = BITSTRING_TAG;
     *current_loc += 1;
