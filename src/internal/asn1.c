@@ -35,8 +35,7 @@ const unsigned char UTCTIME_TAG = 0x17;
 const unsigned char BITSTRING_TAG = 0x03;
 const unsigned char OCTETSTRING_TAG = 0x04;
 
-const unsigned char COMMONNAME_OID[] = {0x55, 0x04, 0x03};          //85, 4, 3
-//const unsigned char ED25519_OID[] = {0x2B, 0x65, 0x70};             //43, 101, 112
+const unsigned char COMMONNAME_OID[] = {0x55, 0x04, 0x03};
 const unsigned char ECDSA_W_SHA256_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02};     //1.2.840.10045.4.3.2
 const unsigned char PRIME256V1_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07};     //1.2.840.10045.3.1.7
 
@@ -74,10 +73,12 @@ enum { name_length = 1 + 1 + rdn_length };                                      
 enum { utctime_length = 1 + 1 + UTC_LENGTH };                                           // tag(1) + length(1) + content(13) 'YYMMDDhhssmmZ'
 enum { validity_length = 1 + 1 + 2*utctime_length };                                    // tag(1) + length(1) + 2*utctime_length (one for notBefore, other for notAfter)
 
-enum { pubkey_bitstring_length = 1 + 1 + 1 + PUBLIC_KEY_LENGTH };                       // tag(1) + length(1) + padding(1) + content(32)
-enum { subjectpublickeyinfo_length = 1 + 1 + ecdsap256_algid_length + pubkey_bitstring_length };    // tag(1) + length(1) + ed25519_algid_length + pubkey_bitstring_length
+enum { curve_def_length = 1 + 1 + prime256v1_oid_length + ecpublickey_oid_length };
 
-enum { tbs_certificate_length = 1 + 2 + serial_num_length + ecdsap256_algid_length + name_length + validity_length + name_length + subjectpublickeyinfo_length };
+enum { pubkey_bitstring_length = 1 + 1 + 1 + PUBLIC_KEY_LENGTH };                       // tag(1) + length(1) + padding(1) + content(32)
+enum { subjectpublickeyinfo_length = 1 + 1 + curve_def_length + pubkey_bitstring_length };    // tag(1) + length(1) + ed25519_algid_length + pubkey_bitstring_length
+
+enum { tbs_certificate_length = 1 + 2 + serial_num_length + ecdsap256_algid_length + name_length + validity_length + name_length + subjectpublickeyinfo_length};
 
 enum { signature_algorithm_length = ecdsap256_algid_length };
 
@@ -107,7 +108,7 @@ build_x509_skeleton(unsigned char *certificate_out,
     unsigned char *current_loc = certificate_out;
 
     set_as_sequence(&current_loc);
-    set_length(&current_loc, certificate_length - 1 - 3);
+    set_length(&current_loc, 333);
 
     *signature_input_location = current_loc;
     *signature_input_length = tbs_certificate_length;
@@ -161,7 +162,7 @@ build_asn1_key_skeleton(unsigned char *asn1_out,
     unsigned char *current_loc = asn1_out;
 
     set_as_sequence(&current_loc);
-    set_length(&current_loc, asn1_privatekey_length - 1 - 1);
+    set_length(&current_loc, asn1_privatekey_length - 1);
 
     build_privkey_version(&current_loc);
 
@@ -204,7 +205,6 @@ build_tbs_certificate(unsigned char **current_loc,
 
     build_subjectpublickeyinfo(current_loc, pubkey_location);
 
-    build_curve(current_loc);
 }
 
 void
@@ -247,7 +247,7 @@ void
 build_curve(unsigned char **current_loc)
 {
     set_as_sequence(current_loc);
-    set_length(current_loc, ecpublickey_oid_length + prime256v1_oid_length);
+    set_length(current_loc, curve_def_length - 1 - 1);
 
     **current_loc = OBJECTIDENTIFIER_TAG;
     *current_loc += 1;
@@ -338,7 +338,7 @@ build_subjectpublickeyinfo(unsigned char **current_loc, unsigned char **pubkey_l
     set_as_sequence(current_loc);
     set_length(current_loc, subjectpublickeyinfo_length - 1 - 1);
 
-    build_signature_algorithm(current_loc);
+    build_curve(current_loc);
 
     **current_loc = BITSTRING_TAG;
     *current_loc += 1;

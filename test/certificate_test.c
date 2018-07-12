@@ -33,8 +33,8 @@ int main(){
     xtt_x509_from_ecdsap256_keypair(&public_key, &private_key, &xtt_null_identity, certificate, XTT_X509_CERTIFICATE_LENGTH);
 
     printf("\nCertifcate: ");
-    for (size_t i = 0; i < 345; i++) {
-        if(certificate[i]<10)
+    for (size_t i = 0; i <= 345; i++) {
+        if(certificate[i]<10 || certificate[i] == 0x0a || certificate[i] == 0x0b || certificate[i] == 0x0c || certificate[i] == 0x0d || certificate[i] == 0x0e || certificate[i] == 0x0f )
             printf("0%x ", certificate[i]);
         else
             printf("%x ", certificate[i]);
