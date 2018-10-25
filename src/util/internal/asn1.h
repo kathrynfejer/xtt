@@ -104,11 +104,12 @@ set_length(unsigned char **current_loc,
 
 void
 build_x509_skeleton(unsigned char *certificate_out,
-                    unsigned char **pubkey_location,
-                    unsigned char **signature_location,
-                    unsigned char **signature_input_location,
-                    size_t *signature_input_length,
-                    const char *common_name);
+                   unsigned char **pubkey_location,
+                   unsigned char **signature_location,
+                   unsigned char **signature_input_location,
+                   size_t *signature_input_length,
+                   const char *common_name_issuer,
+                   const char *common_name_subject);
 
 void
 build_asn1_key_skeleton(unsigned char *asn1_out,
@@ -124,7 +125,8 @@ set_as_set(unsigned char **current_loc);
 void
 build_tbs_certificate(unsigned char **current_loc,
                       unsigned char **pubkey_location,
-                      const char *common_name);
+                      const char *common_name_issuer,
+                      const char *commone_name_subject);
 
 void
 build_publickey(unsigned char **current_loc, unsigned char **pubkey_location);

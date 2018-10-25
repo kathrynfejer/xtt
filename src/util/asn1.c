@@ -38,7 +38,8 @@ size_t xtt_asn1_private_key_length(void)
 
 int xtt_x509_from_ecdsap256_keypair(const xtt_ecdsap256_pub_key *pub_key_in,
                                   const xtt_ecdsap256_priv_key *priv_key_in,
-                                  const xtt_identity_type *common_name,
+                                  const xtt_identity_type *common_name_issuer,
+                                  const xtt_identity_type *common_name_subject,
                                   unsigned char *certificate_out,
                                   size_t certificate_out_length)
 {
@@ -48,16 +49,21 @@ int xtt_x509_from_ecdsap256_keypair(const xtt_ecdsap256_pub_key *pub_key_in,
     unsigned char *signature_location;
     unsigned char *signature_input_location;
     size_t signature_input_length;
-    xtt_identity_string common_name_as_string;
+    xtt_identity_string common_name_issuer_as_string;
+    xtt_identity_string common_name_subject_as_string;
 
     if (certificate_out_length < XTT_X509_CERTIFICATE_LENGTH)
       return CERT_CREATION_ERROR;
 
-    int convert_ret = xtt_identity_to_string(common_name, &common_name_as_string);
+    int convert_ret = xtt_identity_to_string(common_name_issuer, &common_name_issuer_as_string);
     if (0 != convert_ret)
         return CERT_CREATION_ERROR;
 
-    build_x509_skeleton(certificate_out, &pub_key_location, &signature_location, &signature_input_location, &signature_input_length, common_name_as_string.data);
+    convert_ret = xtt_identity_to_string(common_name_subject, &common_name_subject_as_string);
+    if (0 != convert_ret)
+        return CERT_CREATION_ERROR;
+
+    build_x509_skeleton(certificate_out, &pub_key_location, &signature_location, &signature_input_location, &signature_input_length, common_name_issuer_as_string.data, common_name_subject_as_string.data);
 
     memcpy(pub_key_location, pub_key_in->data, sizeof(xtt_ecdsap256_pub_key));
 

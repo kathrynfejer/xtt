@@ -44,7 +44,8 @@ size_t xtt_asn1_private_key_length(void);
 */
 int xtt_x509_from_ecdsap256_keypair(const xtt_ecdsap256_pub_key *pub_key_in,
                                   const xtt_ecdsap256_priv_key *priv_key_in,
-                                  const xtt_identity_type *common_name,
+                                  const xtt_identity_type *common_name_issuer,
+                                  const xtt_identity_type *common_name_subject,
                                   unsigned char *certificate_out,
                                   size_t certificate_out_length);
 

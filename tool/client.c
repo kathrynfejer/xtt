@@ -758,7 +758,7 @@ int report_results_client(xtt_identity_type *requested_client_id,
 
     // 3) Save longterm keypair as X509 certificate and ASN.1-encoded private key
     unsigned char cert_buf[XTT_X509_CERTIFICATE_LENGTH] = {0};
-    if (0 != xtt_x509_from_ecdsap256_keypair(&my_longterm_key, &my_longterm_private_key, &my_assigned_id, cert_buf, sizeof(cert_buf))) {
+    if (0 != xtt_x509_from_ecdsap256_keypair(&my_longterm_key, &my_longterm_private_key, &my_assigned_id, &my_assigned_id, cert_buf, sizeof(cert_buf))) {
         fprintf(stderr, "Error creating X509 certificate\n");
         return CERT_CREATION_ERROR;
     }

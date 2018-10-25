@@ -67,7 +67,8 @@ build_x509_skeleton(unsigned char *certificate_out,
                     unsigned char **signature_location,
                     unsigned char **signature_input_location,
                     size_t *signature_input_length,
-                    const char *common_name)
+                    const char *common_name_issuer,
+                    const char *common_name_subject)
 {
     unsigned char *current_loc = certificate_out;
 
@@ -77,7 +78,7 @@ build_x509_skeleton(unsigned char *certificate_out,
     *signature_input_location = current_loc;
     *signature_input_length = tbs_certificate_length;
 
-    build_tbs_certificate(&current_loc, pubkey_location, common_name);
+    build_tbs_certificate(&current_loc, pubkey_location, common_name_issuer, common_name_subject);
 
     build_signature_algorithm(&current_loc);
 
@@ -163,7 +164,8 @@ set_as_set(unsigned char **current_loc)
 void
 build_tbs_certificate(unsigned char **current_loc,
                       unsigned char **pubkey_location,
-                      const char *common_name)
+                      const char *common_name_issuer,
+                      const char *common_name_subject)
 {
     set_as_sequence(current_loc);
     set_length(current_loc, tbs_certificate_length - 1 - 3);
@@ -172,11 +174,11 @@ build_tbs_certificate(unsigned char **current_loc,
 
     build_signature_algorithm(current_loc);
 
-    build_name(current_loc, common_name);    // issuer name
+    build_name(current_loc, common_name_issuer);    // issuer name
 
     build_validity(current_loc);
 
-    build_name(current_loc, common_name);    // subject name
+    build_name(current_loc, common_name_subject);    // subject name
 
     build_subjectpublickeyinfo(current_loc, pubkey_location);
 

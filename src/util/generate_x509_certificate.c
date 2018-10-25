@@ -22,7 +22,10 @@
 #include <xtt/util/util_errors.h>
 #include <xtt/util/generate_x509_certificate.h>
 
-int xtt_generate_x509_certificate(const char *privkey_filename, const char *pubkey_filename, const char *id_filename, const char *certificate_filename)
+int xtt_generate_x509_certificate(const char *privkey_filename,
+                                const char *pubkey_filename,
+                                const char *id_filename,
+                                const char *certificate_filename)
 {
     int read_ret = 0;
     int write_ret = 0;
@@ -48,7 +51,7 @@ int xtt_generate_x509_certificate(const char *privkey_filename, const char *pubk
 
     // 3) Create certificate and save to file.
     unsigned char cert_buf[XTT_X509_CERTIFICATE_LENGTH] = {0};
-    ret = xtt_x509_from_ecdsap256_keypair(&pub, &priv, &id, cert_buf, sizeof(cert_buf));
+    ret = xtt_x509_from_ecdsap256_keypair(&pub, &priv, &id, &id, cert_buf, sizeof(cert_buf));
     if (0 != ret) {
         return CERT_CREATION_ERROR;
     }

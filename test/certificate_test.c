@@ -36,7 +36,7 @@ int main(){
 
     unsigned char certificate[XTT_X509_CERTIFICATE_LENGTH];
 
-    xtt_x509_from_ecdsap256_keypair(&public_key, &private_key, &xtt_null_identity, certificate, XTT_X509_CERTIFICATE_LENGTH);
+    xtt_x509_from_ecdsap256_keypair(&public_key, &private_key, &xtt_null_identity, &xtt_null_identity, certificate, XTT_X509_CERTIFICATE_LENGTH);
 
     printf("Certifcate: ");
     for (size_t i = 0; i < XTT_X509_CERTIFICATE_LENGTH; i++) {
